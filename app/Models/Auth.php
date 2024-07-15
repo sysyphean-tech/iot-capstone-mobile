@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Auth extends Model
 {
     use HasFactory;
+    protected $name;
+    protected $password;
 }
