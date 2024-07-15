@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 //AUTH MANUAL
 Route::get('/login', [authController::class, 'index'])->name('index')->middleware('static.redirect');
 Route::post('/login', [authController::class, 'login'])->name('login')->middleware('static.redirect');
-Route::post('/logout', [authController::class, 'logout'])->name('logout');
+Route::get('/logout', [authController::class, 'logout'])->name('logout');
 
 Route::middleware(['static.auth'])->group(function () {
     Route::get('/', function () {
