@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class authController extends Controller
@@ -14,8 +14,29 @@ class authController extends Controller
      */
     public function index()
     {
-        //
         return view('Auth.loginPage');
+    }
+    public function login(Request $request)
+    {
+        //Validasi inputan
+        $request->validate([
+            'name' => 'required|max:255',
+            'password' => 'required|min:8|max:255'
+        ]);
+
+        //jika lolos validasi
+        if($request->name === "admin@admin.com" && $request->password === "admin123"){
+            session(['authenticated' => true]);
+            return redirect()->route('home');
+        }
+        //jika tidak lolos validasi maka tampil pesan login failed
+        return back()->withInput()->with('failed','Login Failed!');
+        
+    }
+    public function logout(Request $request)
+    {
+        session()->forget('authenticated');
+        return redirect()->route('login');
     }
 
     /**
