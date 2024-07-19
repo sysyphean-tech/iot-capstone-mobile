@@ -137,11 +137,13 @@
                                 client.on('message', (topic, message, packet) => {
                                     console.log('Received Message: ' + message.toString() + '\nOn topic: ' + topic + "\n On Packet:" + packet)
 
-                                    if (message.toString() == 1) {
-                                        $('#sensor-status').text('NYALA').addClass('text-success').removeClass('text-danger');
+                                    if (topic == "sysyphean_prj1/relay") {
+                                        if (message.toString() == 1) {
+                                            $('#sensor-status').text('NYALA').addClass('text-success').removeClass('text-danger');
 
-                                    } else {
-                                        $('#sensor-status').text('MATI').addClass('text-danger').removeClass('text-success');
+                                        } else {
+                                            $('#sensor-status').text('MATI').addClass('text-danger').removeClass('text-success');
+                                        }
                                     }
 
                                 })
