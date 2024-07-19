@@ -87,65 +87,50 @@
                         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
                         <script>
                             $(document).ready(function() {
-                                const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
-
-                                const host = 'ws://broker.emqx.io:8083/mqtt'
+                                const clientId = Math.random().toString(16).substr(2, 8);
+                                const host = 'wss://sysypheantech.cloud.shiftr.io:443';
 
                                 const options = {
-                                    keepalive: 60,
+                                    keepalive: 30,
                                     clientId: clientId,
+                                    username: "sysypheantech",
+                                    password: "iMbpfEWeGWoPIpJe",
                                     protocolId: 'MQTT',
                                     protocolVersion: 4,
                                     clean: true,
                                     reconnectPeriod: 1000,
                                     connectTimeout: 30 * 1000,
-                                    will: {
-                                        topic: 'WillMsg',
-                                        payload: 'Connection Closed abnormally..!',
-                                        qos: 0,
-                                        retain: false
-                                    },
-                                }
+                                };
+
+                                console.log("Menghubungkan ke Broker");
 
                                 $('#mqtt-status').text('LOADING...')
+
                                 $('#sensor-status').text('WATING...')
 
+                                const client = mqtt.connect(host, options);
 
-                                console.log('Connecting mqtt client')
-                                const client = mqtt.connect(host, options)
-
-                                client.on('error', (err) => {
-                                    console.log('Connection error: ', err)
-                                    client.end()
-                                })
-
-                                client.on('reconnect', () => {
-                                    console.log('Reconnecting...')
-                                })
-
-                                client.on('connect', () => {
-                                    console.log('Client connected:' + clientId)
+                                client.on("connect", () => {
+                                    console.log("Terhubung");
 
                                     $('#mqtt-status').text('TERHUBUNG').addClass('text-success')
 
-                                    // Subscribe
-                                    client.subscribe('sysyphean_prj1/#', {
-                                        qos: 0
-                                    })
-                                })
+                                    client.subscribe("sensor/status/#", {
+                                        qos: 1
+                                    });
+                                });
 
-                                client.on('message', (topic, message, packet) => {
-                                    console.log('Received Message: ' + message.toString() + '\nOn topic: ' + topic + "\n On Packet:" + packet)
-
-                                    if (message.toString() == 1) {
-                                        $('#sensor-status').text('NYALA').addClass('text-success').removeClass('text-danger');
-
-                                    } else {
-                                        $('#sensor-status').text('MATI').addClass('text-danger').removeClass('text-success');
-                                    }
-
-                                })
-
+                                setTimeout(() => {
+                                    client.on("message", function(topic, payload) {
+                                        if (topic === "sensor/status/relay") {
+                                            if (payload == "1") {
+                                                $('#sensor-status').text('NYALA').addClass('text-success').removeClass('text-danger');
+                                            } else {
+                                                $('#sensor-status').text('MATI').addClass('text-danger').removeClass('text-success');
+                                            }
+                                        }
+                                    });
+                                }, 2000);
 
                             })
                         </script>
