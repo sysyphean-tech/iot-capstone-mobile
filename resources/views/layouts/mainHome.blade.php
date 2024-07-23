@@ -87,66 +87,76 @@
                         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
                         <script>
                             $(document).ready(function() {
-                                const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
+                                const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
 
-                                const host = 'ws://broker.emqx.io:8083/mqtt'
+                                const host = "wss://broker.emqx.io:8084/mqtt";
 
                                 const options = {
                                     keepalive: 60,
                                     clientId: clientId,
-                                    protocolId: 'MQTT',
+                                    protocolId: "MQTT",
                                     protocolVersion: 4,
                                     clean: true,
                                     reconnectPeriod: 1000,
                                     connectTimeout: 30 * 1000,
                                     will: {
-                                        topic: 'WillMsg',
-                                        payload: 'Connection Closed abnormally..!',
+                                        topic: "WillMsg",
+                                        payload: "Connection Closed abnormally..!",
                                         qos: 0,
-                                        retain: false
+                                        retain: false,
                                     },
-                                }
+                                };
 
-                                $('#mqtt-status').text('LOADING...')
-                                $('#sensor-status').text('WATING...')
+                                $("#mqtt-status").text("LOADING...");
+                                $("#sensor-status").text("WATING...");
 
+                                console.log("Connecting mqtt client");
+                                const client = mqtt.connect(host, options);
 
-                                console.log('Connecting mqtt client')
-                                const client = mqtt.connect(host, options)
+                                client.on("error", (err) => {
+                                    console.log("Connection error: ", err);
+                                    client.end();
+                                });
 
-                                client.on('error', (err) => {
-                                    console.log('Connection error: ', err)
-                                    client.end()
-                                })
+                                client.on("reconnect", () => {
+                                    console.log("Reconnecting...");
+                                });
 
-                                client.on('reconnect', () => {
-                                    console.log('Reconnecting...')
-                                })
+                                client.on("connect", () => {
+                                    console.log("Client connected:" + clientId);
 
-                                client.on('connect', () => {
-                                    console.log('Client connected:' + clientId)
-
-                                    $('#mqtt-status').text('TERHUBUNG').addClass('text-success')
+                                    $("#mqtt-status").text("TERHUBUNG").addClass("text-success");
 
                                     // Subscribe
-                                    client.subscribe('sysyphean_prj1/#', {
-                                        qos: 0
-                                    })
-                                })
+                                    client.subscribe("sysyphean_prj1/#", {
+                                        qos: 0,
+                                    });
+                                });
 
-                                client.on('message', (topic, message, packet) => {
-                                    console.log('Received Message: ' + message.toString() + '\nOn topic: ' + topic + "\n On Packet:" + packet)
+                                client.on("message", (topic, message, packet) => {
+                                    console.log(
+                                        "Received Message: " +
+                                        message.toString() +
+                                        "\nOn topic: " +
+                                        topic +
+                                        "\n On Packet:" +
+                                        packet
+                                    );
 
                                     if (topic == "sysyphean_prj1/relay") {
                                         if (message.toString() == 1) {
-                                            $('#sensor-status').text('NYALA').addClass('text-success').removeClass('text-danger');
-
+                                            $("#sensor-status")
+                                                .text("NYALA")
+                                                .addClass("text-success")
+                                                .removeClass("text-danger");
                                         } else {
-                                            $('#sensor-status').text('MATI').addClass('text-danger').removeClass('text-success');
+                                            $("#sensor-status")
+                                                .text("MATI")
+                                                .addClass("text-danger")
+                                                .removeClass("text-success");
                                         }
                                     }
-
-                                })
+                                });
 
 
                             })
