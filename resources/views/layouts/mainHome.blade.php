@@ -22,7 +22,8 @@
                         <div class="row">
                             <div class="col-lg-12 mt-4 mb-4">
                                 <h5 class="text-center">Sensor</h5>
-                                <button id="toggle-relay" class="btn btn-primary form-control" disabled>Aktifkan Relay</button>
+                                <button id="toggle-relay" class="btn btn-primary form-control">Aktifkan Sinyal</button>
+                                <!-- <button id="toggle-relay" class="btn btn-danger form-control">Matikan Sinyal</button> -->
                             </div>
 
                             <div class="col-lg-12">
@@ -164,23 +165,16 @@
                                 });
                             });
 
-
-                            function updateButtonState() {
-                                if (mqttConnected && wifiConnected) {
-                                    $('#toggle-relay').prop('disabled', false);
-                                } else {
-                                    $('#toggle-relay').prop('disabled', true);
-                                }
-                            }
-
                             $('#toggle-relay').click(function() {
                                 relayStatus = !relayStatus;
                                 const newStatus = relayStatus ? "ON" : "OFF";
                                 const newClass = relayStatus ? "text-success" : "text-danger";
 
+                                const statusBtn = relayStatus ? "SINYAL ON" : "SINYAL OFF";
+                                const styleStatusBtn = relayStatus ? "btn-success" : "btn-danger";
 
                                 $('#relay-status').text(newStatus).removeClass("text-danger text-success").addClass(newClass);
-
+                                $('#toggle-relay').text(statusBtn).removeClass('btn-success btn-danger').addClass(styleStatusBtn)
 
                                 client.publish("sysyphean_prj1/toggleStatus", relayStatus ? "1" : "0", {
                                     qos: 0,
@@ -226,7 +220,6 @@
                                             .removeClass("text-success");
                                         wifiConnected = false;
                                     }
-                                    updateButtonState();
                                 }
                             });
                         });
